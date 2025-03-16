@@ -7,14 +7,15 @@ vector<int> dijkstra_shortest_path(const Graph& G, int source, vector<int>& prev
     vector<int> distances(numVertices, INF);
     vector<bool> visted(numVertices, false);
     distances[source] = 0;
-    previous[source] = -1;
+    previous[numVertices] = -1;
+
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> minHeap;
     minHeap.push({source, 0});
     while(!minHeap.empty()) {
 
         int u = minHeap.top().first;
         minHeap.pop();
-        if(visted[u])continue;
+        if (visted[u]) continue;
         visted[u] = true;
         for(Edge e: G[u]){
             int v = e.dst;
