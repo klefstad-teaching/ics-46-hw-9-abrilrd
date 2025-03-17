@@ -3,38 +3,56 @@
 void error(string word1, string word2, string msg){cout << word1 << " " << word2 << ": " << msg << endl;}
 
 bool edit_distance_within(const std::string& str1, const std::string& str2, int d){
-    int diff_count = 0;
+    int counter = 0;
+    int strlen1 = str1.size();
+    int strlen2 = str2.size();
     
-    int size = std::min(str1.size(), str2.size());
-    for (int i = 0; i < size; ++i) {
-        if (str1[i] != str1[i]){
-            diff_count++;
-            if (diff_count > d) return false;
+    /*
+    3 cases
+    1st is that size1 - size2 == 0 (same size)
+    2nd is that size1 is + or - 1 of size 2 or vice versa (1 insert or delete)
+    3rd is the 2nd case BUT the insertion is at the end (so you made it to the end with no flags)
+    */
+    int diff = abs(strlen1 - strlen2);
+    if (diff > d) return false;
+
+    if (diff == 0){
+        for (int i = 0; i < strlen1; ++i) {
+            if (str1[i] != str2[i]){
+                counter++;
+                if (counter > d) return false;
+            }
         }
     }
-    diff_count += std::abs(static_cast<int>(str1.size()) - static_cast<int>(str2.size()));
+    else{
+        //int size = min(strlen1, strlen2);
+        for (int i, j = 0; i < strlen1 && j < strlen2;) {
+            if (str1[i] != str2[j]){
+                counter++;
+                if (counter > d) return false;
+                if(strlen1 > strlen2) i++;
+                else j++;
+            }
+            else {
+                i++;
+                j++;
+            }
+        }
+        //counter += diff;
+    }
+    //diff_count += std::abs(static_cast<int>(str1.size()) - static_cast<int>(str2.size()));
     
-    return diff_count <= d;
+    return counter <= d;
 }
 
 bool is_adjacent(const string& word1, const string& word2){
-    if (word1.size() != word2.size()) return false;
-    int diff_count = 0;
-    
-    for (int i = 0; i < word1.size(); ++i) {
-        if (word1[i] != word2[i]){
-            diff_count++;
-            if (diff_count > 1) return false;
-        }
-    }
-    
-    return diff_count == 1;
+    return edit_distance_within(word1, word2, 1);
 }
 
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list){
     queue<vector<string>> ladder_queue;
     ladder_queue.push({begin_word});
-    set<string> visited = word_list;
+    set<string> visited;
     visited.insert(begin_word);
 
     while(!ladder_queue.empty()){
@@ -74,12 +92,14 @@ void print_word_ladder(const vector<string>& ladder){
         cout << word << " ";
 }
 
+
+#define my_assert(e) {cout << #e << ((e) ? " passed": " failed") << endl;}
 void verify_word_ladder(){
     set<string> word_list;
     load_words(word_list, "words.txt");
     
-    /*
-    ladder = generate_word_ladder("cat", "dog", word_list);
+    //ladder = generate_word_ladder("", "dog", word_list);
+    print_word_ladder(generate_word_ladder("marty", "curls", word_list));
     my_assert(generate_word_ladder("cat", "dog", word_list).size() == 4);
 
     my_assert(generate_word_ladder("marty", "curls", word_list).size() == 6);
@@ -91,5 +111,5 @@ void verify_word_ladder(){
     my_assert(generate_word_ladder("sleep", "awake", word_list).size() == 8);
 
     my_assert(generate_word_ladder("car", "cheat", word_list).size() == 4);
-    */
+    
 }
